@@ -30,4 +30,5 @@ var map = new Map({
 
 main.ports.infoForOutside.subscribe(function (msg) {
   console.log(msg);
+  console.log(msg.data);
 });
