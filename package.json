@@ -1,0 +1,13 @@
+{
+  "scripts": {
+    "watch": "parcel index.html"
+  },
+  "dependencies": {
+    "elm": "^0.19.0-bugfix2",
+    "ol": "^5.3.0",
+    "parcel-bundler": "^1.10.3"
+  },
+  "devDependencies": {
+    "node-elm-compiler": "^5.0.1"
+  }
+}
