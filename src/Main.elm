@@ -4,15 +4,21 @@ import Browser
 import Html exposing (Html, button, div, text, ul, li)
 import Html.Events exposing (onClick)
 import Html.Attributes exposing (id)
+import OutsideInfo exposing (..)
 
 
 main =
-    Browser.sandbox { init = init, update = update, view = view }
+    Browser.element
+       { init = init
+       , update = update
+       , view = view
+       , subscriptions = subscriptions
+       }
 
 
-
--- MODEL
-
+subscriptions: Model -> Sub Msg
+subscriptions model =
+    Sub.batch [ OutsideInfo.getInfoFromOutside Outside LogErr ]
 
 type alias Trip =
     { name : String }
@@ -23,12 +29,18 @@ type alias Model =
     , trips : List Trip
     }
 
+type alias Flags = { }
 
-init : Model
-init =
-    Model 0 [ Trip "Strasbourg" ]
-
-
+init : Flags -> ( Model, Cmd Msg )
+init flags =
+    ( Model
+        0
+        [ Trip "Strasbourg"
+        , Trip "Kressbronn am Bodensee"
+        , Trip "Clairvaux-les-lacs"
+        ]
+    , sendInfoOutside (OutsideInfo.Initialized True)
+    )
 
 -- UPDATE
 
@@ -36,16 +48,28 @@ init =
 type Msg
     = Increment
     | Decrement
+    | LogErr String
+    | Outside InfoForElm
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         Increment ->
-            { model | value = model.value + 1 }
+            ({ model | value = model.value + 1 }, Cmd.none)
 
         Decrement ->
-            { model | value = model.value - 1 }
+            ({ model | value = model.value - 1 }, Cmd.none)
+
+
+        Outside infoForElm ->
+            case infoForElm of
+                OutsideInfo.Bla _ ->
+                    ( model, Cmd.none )
+
+        LogErr err ->
+            ( model, OutsideInfo.sendInfoOutside <| OutsideInfo.LogError err )
+
 
 
 
@@ -67,7 +91,7 @@ viewTrips : List Trip -> Html Msg
 viewTrips trips =
     ul [] <| List.map viewTrip trips
 
+
 viewTrip : Trip -> Html Msg
 viewTrip trip =
-    li [ ] [ text trip.name ]
-
+    li [] [ text trip.name ]
